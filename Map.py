@@ -12,7 +12,7 @@ class Map:
         self.max_angle = max_angle                          # max angle in one direction sensor will travel to
         self.steps_per_reading = steps_per_reading          # number of steps between each reading
         self.size = (2 * max_angle / steps_per_reading) + 1 # numb readings stored
-        self.data = [0] * self.size                         # array of all the readings
+        self.data = [0] * int( self.size)                         # array of all the readings
         self.steps_per_revolution = steps_per_revolution    # number of steps in one full revolution of the motor
 
     # get angle in degrees from motor steps by converting with steps_per_revolution
@@ -38,7 +38,7 @@ class Map:
             raise ValueError("Angle out of bounds")
         
         # get index by factoring out stepper_reading & normalizing to 0
-        index = (max_angle / self.steps_per_reading) + (angle / self.steps_per_reading)
+        index = (self.max_angle / self.steps_per_reading) + (angle / self.steps_per_reading)
 
         # add data to array
         self.data[int(index)] = distance
@@ -67,13 +67,21 @@ class Map:
 
         # round down to nearest step
         if(angle % self.steps_per_reading != 0):
-            int error = angle % self.steps_per_reading
+            error = angle % self.steps_per_reading
             if(angle > 0):
                 angle -= error  
             else:
                 angle += error
         
         return self.get_data_by_angle(angle)
+
+    def print_all_data(self):
+        for i in range(int(self.size)):
+            print("index :: " + str(i) + " data :: " + str(self.data[i]))
+        print("\n")
+
+    def get_all_data(self):
+        return self.data
 
     
 
