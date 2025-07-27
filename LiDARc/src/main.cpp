@@ -21,9 +21,6 @@ bool going_left = true;         // direction of the motor
 AccelStepper axis(HALFSTEP, 9, 11, 10, 12);
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
-// Stores the sensor data, calculate length in setup
-int* data = nullptr;
-
 // convert ticks to degrees
 int degrees_from_ticks(int ticks)
 {
@@ -50,15 +47,11 @@ int calculate_num_items()
 void setup()
 {
     // begin serial
-    Serial.begin(9600);
+    Serial.begin(115200);
     delay(1000);
 
     // will need many times so more effiecient to calculate once
     STEPS_TO_MAX_ANGLE = ticks_from_degrees(MAX_ANGLE);
-
-    // initialize data array
-    int num_items = calculate_num_items();
-    data = new int[num_items];
 
     // start up vl53l0x
     if (!lox.begin()) {
@@ -89,6 +82,7 @@ bool move_motor()
     // determine if need to switch direction
     if(next_pos > STEPS_TO_MAX_ANGLE || next_pos < -STEPS_TO_MAX_ANGLE)
     {
+        Serial.println("swicthing");
         going_left = !going_left;
         next_pos = current_location + (going_left ? -STEPS_PER_SCAN: STEPS_PER_SCAN);
         ret = true;
@@ -115,14 +109,40 @@ bool move_motor()
 
 }
 
+// reads data from sensor and records to array
+void read_and_send_data()
+{
+    int index = (current_location + STEPS_TO_MAX_ANGLE) / STEPS_PER_SCAN;
+
+    VL53L0X_RangingMeasurementData_t measure;
+    lox.rangingTest(&measure, false);
+    int distance = measure.RangeMilliMeter;
+     if (measure.RangeStatus == 4) { // make sure reading in range
+      distance = OUT_OF_RANGE;
+    }
+
+    Serial.print(index);
+    Serial.print(", ");
+    Serial.println(distance);
+
+}
+
+// sends pertinent metadata prior to transmitting sensor scanned array
+// form: Num_Items (int), Max_angle (int)
+void send_metadata()
+{
+    Serial.println(calculate_num_items());
+    Serial.println(MAX_ANGLE);
+}
+
+bool first = true;
+
 void loop()
 {
-    // axis.setCurrentPosition(0);
-    // axis.moveTo(50);
-    // while(axis.distanceToGo() != 0)
-    // {
-    //     axis.run();
-    // }
-
     move_motor();
+    read_and_send_data();
+ 
 }
+
+/* why do you suppose that the motor moves when i comment out send_data() but it doesnt when send_data is in place?
+*/
