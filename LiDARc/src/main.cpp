@@ -27,13 +27,15 @@ int* data = nullptr;
 // convert ticks to degrees
 int degrees_from_ticks(int ticks)
 {
-    return (ticks * 360) / STEPS_PER_ROTATION;
+    double conversion = 360.0 / (double) STEPS_PER_ROTATION;
+    return int((double)ticks * conversion);
 }
 
 // convert degrees to ticks
 int ticks_from_degrees(int degrees)
 {
-    return (degrees * STEPS_PER_ROTATION) / 360;
+    double conversion = (double)STEPS_PER_ROTATION / 360.0;
+    return (int)((double)degrees * conversion);
 }
 
 // calculate number of items that will be stored
@@ -108,4 +110,19 @@ bool move_motor()
         axis.run();
     }
 
+    current_location = next_pos;
+    return ret;
+
+}
+
+void loop()
+{
+    // axis.setCurrentPosition(0);
+    // axis.moveTo(50);
+    // while(axis.distanceToGo() != 0)
+    // {
+    //     axis.run();
+    // }
+
+    move_motor();
 }
