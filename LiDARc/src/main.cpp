@@ -39,7 +39,7 @@ int ticks_from_degrees(int degrees)
 // calculate number of items that will be stored
 int calculate_num_items()
 {
-    int rotation_divider = 360 / max_angle;
+    int rotation_divider = 360 / MAX_ANGLE;
     int ticks_one_direction = 2048 / rotation_divider;
     int total_ticks = (2 * ticks_one_direction) + 1;
     return total_ticks;
